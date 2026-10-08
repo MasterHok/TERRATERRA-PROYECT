@@ -11,8 +11,8 @@ echo ===============================================================
 echo.
 echo Este instalador hara lo siguiente:
 echo   1. Verificar que Python esta instalado
-echo   2. Instalar PySide6 y pywinpty
-echo   3. Crear las carpetas necesarias
+echo   2. Instalar PySide6, pywinpty y PyInstaller
+echo   3. Crear carpetas y los archivos LANZADOR_PYTHON.bat y CREA_UN_EXE.bat
 echo   4. Descargar tModLoader
 echo   5. Descargar el mod IPv6Remapper
 echo   6. Instalar Terraria GOG (seleccionando el instalador)
@@ -41,9 +41,9 @@ REM ===============================================================
 REM  2. Instalar dependencias
 REM ===============================================================
 echo.
-echo [2/6] Instalando dependencias (PySide6, pywinpty)...
+echo [2/6] Instalando dependencias (PySide6, pywinpty, PyInstaller)...
 python -m pip install --upgrade pip
-python -m pip install PySide6 pywinpty
+python -m pip install PySide6 pywinpty pyinstaller
 if errorlevel 1 (
     echo.
     echo ERROR: No se pudieron instalar las dependencias.
@@ -55,7 +55,7 @@ if errorlevel 1 (
 echo OK - Dependencias instaladas.
 
 REM ===============================================================
-REM  3. Crear estructura de carpetas
+REM  3. Crear carpetas y archivos .bat
 REM ===============================================================
 echo.
 echo [3/6] Creando carpetas...
@@ -79,6 +79,62 @@ echo Creando LANZADOR_PYTHON.bat...
 >> "LANZADOR_PYTHON.bat" echo python TERRATERRA.py
 >> "LANZADOR_PYTHON.bat" echo pause
 echo OK - LANZADOR_PYTHON.bat creado.
+
+REM ---------------------------------------------------------------
+REM  Crear CREA_UN_EXE.bat
+REM ---------------------------------------------------------------
+echo Creando CREA_UN_EXE.bat...
+> "CREA_UN_EXE.bat" echo @echo off
+>> "CREA_UN_EXE.bat" echo setlocal enabledelayedexpansion
+>> "CREA_UN_EXE.bat" echo title COMPILAR TERRATERRA
+>> "CREA_UN_EXE.bat" echo cd /d "%%~dp0"
+>> "CREA_UN_EXE.bat" echo.
+>> "CREA_UN_EXE.bat" echo echo ========================================
+>> "CREA_UN_EXE.bat" echo echo   COMPILANDO TERRATERRA
+>> "CREA_UN_EXE.bat" echo echo ========================================
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo echo Instalando PyInstaller...
+>> "CREA_UN_EXE.bat" echo python -m pip install pyinstaller
+>> "CREA_UN_EXE.bat" echo.
+>> "CREA_UN_EXE.bat" echo if errorlevel 1 ^(
+>> "CREA_UN_EXE.bat" echo     echo ERROR: No se pudo instalar PyInstaller.
+>> "CREA_UN_EXE.bat" echo     pause
+>> "CREA_UN_EXE.bat" echo     exit /b 1
+>> "CREA_UN_EXE.bat" echo ^)
+>> "CREA_UN_EXE.bat" echo.
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo echo Detectando icono...
+>> "CREA_UN_EXE.bat" echo set "ICON_OPT="
+>> "CREA_UN_EXE.bat" echo if exist assets\icon.ico set "ICON_OPT=--icon assets\icon.ico"
+>> "CREA_UN_EXE.bat" echo.
+>> "CREA_UN_EXE.bat" echo echo Compilando con PyInstaller...
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo python -m PyInstaller --onefile --windowed --clean %%ICON_OPT%% --add-data "assets;assets" --distpath "TERRALAUNCHER" --name TERRATERRA TERRATERRA.py
+>> "CREA_UN_EXE.bat" echo.
+>> "CREA_UN_EXE.bat" echo if errorlevel 1 ^(
+>> "CREA_UN_EXE.bat" echo     echo ERROR: La compilacion fallo.
+>> "CREA_UN_EXE.bat" echo     pause
+>> "CREA_UN_EXE.bat" echo     exit /b 1
+>> "CREA_UN_EXE.bat" echo ^)
+>> "CREA_UN_EXE.bat" echo.
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo echo ========================================
+>> "CREA_UN_EXE.bat" echo echo   COMPILACION COMPLETADA
+>> "CREA_UN_EXE.bat" echo echo ========================================
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo echo Ejecutable generado en:
+>> "CREA_UN_EXE.bat" echo echo   TERRALAUNCHER\TERRATERRA.exe
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo echo NOTA: El .exe lleva los assets dentro.
+>> "CREA_UN_EXE.bat" echo echo Necesita una carpeta con permisos de escritura para usar:
+>> "CREA_UN_EXE.bat" echo echo   - config\
+>> "CREA_UN_EXE.bat" echo echo   - tModLoader\
+>> "CREA_UN_EXE.bat" echo echo   - Terraria\
+>> "CREA_UN_EXE.bat" echo echo   - Worlds\
+>> "CREA_UN_EXE.bat" echo echo.
+>> "CREA_UN_EXE.bat" echo pause
+>> "CREA_UN_EXE.bat" echo endlocal
+echo OK - CREA_UN_EXE.bat creado.
 
 REM ===============================================================
 REM  4. Descargar tModLoader
@@ -280,13 +336,16 @@ echo ===============================================================
 echo.
 echo PASOS SIGUIENTES:
 echo.
-echo  1. Si no instalaste Terraria GOG, hazlo manualmente en:
-echo     %CD%\Terraria
+echo  1. Si no instalaste Terraria GOG, hazlo manualmente.
+echo     Debe quedar en: %CD%\Terraria
 echo.
 echo  2. Arranca el launcher con:
-echo        python TERRATERRA.py
+echo        LANZADOR_PYTHON.bat
 echo.
-echo  3. En la pestana Servidor, crea o carga un mundo.
+echo  3. Para crear un .exe del launcher, ejecuta:
+echo        CREA_UN_EXE.bat
+echo.
+echo  4. En la pestana Servidor, crea o carga un mundo.
 echo.
 echo ===============================================================
 echo.

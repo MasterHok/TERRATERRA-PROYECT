@@ -69,7 +69,7 @@ DEFAULT_PORT = "7777"
 SERVER_READER_LINES = 3000
 
 WEBSITE_URL = "https://www.terrarianos.uk"
-GITHUB_URL = "https://github.com/MasterHok/TERRACRAFT-PROYECT"
+GITHUB_URL = "https://github.com/MasterHok/TERRATERRA-PROYECT"
 DISCORD_URL = "https://discord.gg/3KgY7d4ZSW"
 
 IP_LOOKUP_DELAY_MS = 300
